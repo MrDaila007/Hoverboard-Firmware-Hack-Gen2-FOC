@@ -40,8 +40,14 @@
 
 // ################################################################################
 
+// Uncomment to enable sinusoidal commutation (smoother, quieter).
+// Comment out to use classic 6-step block commutation.
+#define SINUSOIDAL
+
+// ################################################################################
+
 #define PWM_FREQ         		16000     // PWM frequency in Hz
-#define DEAD_TIME        		60        // PWM deadtime (60 = 1µs, measured by oscilloscope)
+#define DEAD_TIME        		60        // PWM deadtime (60 = 1ï¿½s, measured by oscilloscope)
 
 #define DC_CUR_LIMIT     		15        // Motor DC current limit in amps
 

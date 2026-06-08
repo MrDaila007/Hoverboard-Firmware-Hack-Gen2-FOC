@@ -221,7 +221,7 @@ void dma_deinit(dma_channel_enum channelx);
 /* initialize the parameters of DMA struct with the default values */
 void dma_struct_para_init(dma_parameter_struct* init_struct);
 /* initialize DMA channel */
-void dma_init(dma_channel_enum channelx, dma_parameter_struct* init_struct);
+void dma_init(dma_channel_enum channelx, dma_parameter_struct init_struct);
 /* enable DMA circulation mode */
 void dma_circulation_enable(dma_channel_enum channelx);
 /* disable DMA circulation mode */

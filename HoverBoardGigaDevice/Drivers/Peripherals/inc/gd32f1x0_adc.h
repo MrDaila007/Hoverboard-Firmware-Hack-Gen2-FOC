@@ -176,6 +176,7 @@ OF SUCH DAMAGE.
 #define ADC_EXTTRIG_REGULAR_T14_CH0     CTL1_ETSRC(5)                       /*!< TIMER14 CH0 event select */
 #define ADC_EXTTRIG_REGULAR_EXTI_11     CTL1_ETSRC(6)                       /*!< external interrupt line 11 */
 #define ADC_EXTTRIG_REGULAR_NONE        CTL1_ETSRC(7)                       /*!< software trigger */
+#define ADC_EXTTRIG_REGULAR_SWRCST      ADC_EXTTRIG_REGULAR_NONE            /*!< alias: software trigger (legacy name) */
 
 /* external trigger select for inserted channel */
 #define CTL1_ETSIC(regval)              (BITS(12,14) & ((uint32_t)(regval) << 12))

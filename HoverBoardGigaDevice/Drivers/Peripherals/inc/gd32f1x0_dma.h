@@ -259,7 +259,7 @@ void dma_periph_increase_enable(dma_channel_enum channelx);
 /* disable next address increasement algorithm of peripheral */
 void dma_periph_increase_disable(dma_channel_enum channelx);
 /* configure the direction of data transfer on the channel */
-void dma_transfer_direction_config(dma_channel_enum channelx, uint32_t direction);
+void dma_transfer_direction_config(dma_channel_enum channelx, uint8_t direction);
 
 /* DMA interrupt and flag functions */
 /* check DMA flag is set or not */
@@ -269,7 +269,7 @@ void dma_interrupt_flag_clear(dma_channel_enum channelx, uint32_t flag);
 /* enable DMA interrupt */
 void dma_interrupt_enable(dma_channel_enum channelx, uint32_t source);
 /* disable DMA interrupt */
-void dma_interrupt_disable(dma_channel_enum channelx,uint32_t source);
+void dma_interrupt_disable(dma_channel_enum channelx, uint32_t source);
 /* check DMA flag is set or not */
 FlagStatus dma_flag_get(dma_channel_enum channelx, uint32_t flag);
 /* clear DMA a channel flag */

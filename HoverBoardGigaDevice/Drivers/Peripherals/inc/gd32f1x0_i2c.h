@@ -339,7 +339,7 @@ void i2c_ackpos_config(uint32_t i2c_periph, uint32_t pos);
 /* master sends slave address */
 void i2c_master_addressing(uint32_t i2c_periph, uint32_t addr, uint32_t trandirection);
 /* enable dual-address mode */
-void i2c_dualaddr_enable(uint32_t i2c_periph, uint32_t addr);
+void i2c_dualaddr_enable(uint32_t i2c_periph, uint32_t dualaddr);
 /* disable dual-address mode */
 void i2c_dualaddr_disable(uint32_t i2c_periph);
 /* enable I2C */
@@ -378,17 +378,17 @@ void i2c_smbus_issue_alert(uint32_t i2c_periph, uint32_t smbuspara);
 void i2c_smbus_arp_enable(uint32_t i2c_periph, uint32_t arpstate);
 
 /* check I2C flag is set or not */
-FlagStatus i2c_flag_get(uint32_t i2c_periph, i2c_flag_enum flag);
+FlagStatus i2c_flag_get(uint32_t i2c_periph, uint32_t flag);
 /* clear I2C flag */
-void i2c_flag_clear(uint32_t i2c_periph, i2c_flag_enum flag);
+void i2c_flag_clear(uint32_t i2c_periph, uint32_t flag);
 /* enable I2C interrupt */
-void i2c_interrupt_enable(uint32_t i2c_periph, i2c_interrupt_enum interrupt);
+void i2c_interrupt_enable(uint32_t i2c_periph, uint32_t inttype);
 /* disable I2C interrupt */
-void i2c_interrupt_disable(uint32_t i2c_periph, i2c_interrupt_enum interrupt);
+void i2c_interrupt_disable(uint32_t i2c_periph, uint32_t inttype);
 /* check I2C interrupt flag */
-FlagStatus i2c_interrupt_flag_get(uint32_t i2c_periph, i2c_interrupt_flag_enum int_flag);
+FlagStatus i2c_interrupt_flag_get(uint32_t i2c_periph, uint32_t intflag);
 /* clear I2C interrupt flag */
-void i2c_interrupt_flag_clear(uint32_t i2c_periph, i2c_interrupt_flag_enum int_flag);
+void i2c_interrupt_flag_clear(uint32_t i2c_periph, uint32_t intflag);
 
 #ifdef GD32F170_190
 /* enable SAM_V interface */

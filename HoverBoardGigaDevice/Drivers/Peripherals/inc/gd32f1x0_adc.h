@@ -325,17 +325,17 @@ void adc_special_function_config(uint32_t function, ControlStatus newvalue);
 /* configure ADC data alignment */
 void adc_data_alignment_config(uint32_t data_alignment);
 /* configure the length of regular channel group or inserted channel group */
-void adc_channel_length_config(uint8_t channel_group, uint32_t length);
+void adc_channel_length_config(uint8_t channel_group,uint32_t length);
 /* configure ADC regular channel */
-void adc_regular_channel_config(uint8_t rank, uint8_t channel, uint32_t sample_time);
+void adc_regular_channel_config(uint8_t rank, uint8_t channel,uint32_t sample_time);
 /* configure ADC inserted channel */
 void adc_inserted_channel_config(uint8_t rank, uint8_t channel, uint32_t sample_time);
 /* configure ADC inserted channel offset */
-void adc_inserted_channel_offset_config(uint8_t inserted_channel, uint16_t offset);
+void adc_inserted_channel_offset_config(uint8_t inserted_channel,uint16_t offset);
 /* enable ADC external trigger */
-void adc_external_trigger_config(uint8_t channel_group, ControlStatus newvalue);
+void adc_external_trigger_config(uint8_t channel_group,ControlStatus newvalue);
 /* configure ADC external trigger source */
-void adc_external_trigger_source_config(uint8_t channel_group, uint32_t external_trigger_source);
+void adc_external_trigger_source_config(uint8_t channel_group,uint32_t external_trigger_source);
 /* enable ADC software trigger */
 void adc_software_trigger_enable(uint8_t channel_group);
 
@@ -364,13 +364,13 @@ void adc_watchdog_group_channel_enable(uint8_t channel_group);
 /* disable ADC analog watchdog */
 void adc_watchdog_disable(void);
 /* configure ADC analog watchdog threshold */
-void adc_watchdog_threshold_config(uint16_t low_threshold, uint16_t high_threshold);
+void adc_watchdog_threshold_config(uint16_t low_threshold,uint16_t high_threshold);
 
 #ifdef GD32F170_190
 /* configure ADC resolution */
 void adc_resolution_config(uint32_t resolution);
 /* configure ADC oversample mode */
-void adc_oversample_mode_config(uint8_t mode, uint16_t shift, uint8_t ratio);
+void adc_oversample_mode_config(uint8_t mode, uint16_t shift,uint8_t ratio);
 /* enable ADC oversample mode */
 void adc_oversample_mode_enable(void);
 /* disable ADC oversample mode */

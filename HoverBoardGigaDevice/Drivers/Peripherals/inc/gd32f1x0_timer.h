@@ -633,9 +633,9 @@ void timer_prescaler_config(uint32_t timer_periph, uint16_t prescaler, uint8_t p
 /* configure TIMER repetition register value */
 void timer_repetition_value_config(uint32_t timer_periph, uint16_t repetition);
 /* configure TIMER autoreload register value */
-void timer_autoreload_value_config(uint32_t timer_periph, uint32_t autoreload);
+void timer_autoreload_value_config(uint32_t timer_periph, uint16_t autoreload);
 /* configure TIMER counter register value */
-void timer_counter_value_config(uint32_t timer_periph , uint32_t counter);
+void timer_counter_value_config(uint32_t timer_periph, uint16_t counter);
 /* read TIMER counter value */
 uint32_t timer_counter_read(uint32_t timer_periph);
 /* read TIMER prescaler value */
@@ -669,7 +669,7 @@ void timer_dma_disable(uint32_t timer_periph, uint16_t dma);
 /* channel DMA request source selection */
 void timer_channel_dma_request_source_select(uint32_t timer_periph, uint8_t dma_request);
 /* configure the TIMER DMA transfer */
-void timer_dma_transfer_config(uint32_t timer_periph,uint32_t dma_baseaddr, uint32_t dma_lenth);
+void timer_dma_transfer_config(uint32_t timer_periph, uint32_t dma_baseaddr, uint32_t dma_lenth);
 /* software generate events */
 void timer_event_software_generate(uint32_t timer_periph, uint16_t event);
 
@@ -687,7 +687,7 @@ void timer_automatic_output_enable(uint32_t timer_periph);
 /* disable TIMER output automatic function */
 void timer_automatic_output_disable(uint32_t timer_periph);
 /* enable or disable TIMER primary output function */
-void timer_primary_output_config(uint32_t timer_periph, ControlStatus newvalue);
+void timer_primary_output_config(uint32_t timer_periph,ControlStatus newvalue);
 /* enable or disable channel capture/compare control shadow register */
 void timer_channel_control_shadow_config(uint32_t timer_periph, ControlStatus newvalue);
 /* configure TIMER channel control shadow register update control */
@@ -697,9 +697,9 @@ void timer_channel_control_shadow_update_config(uint32_t timer_periph, uint8_t c
 /* initialize TIMER channel output parameter struct */
 void timer_channel_output_struct_para_init(timer_oc_parameter_struct* ocpara);
 /* configure TIMER channel output function */
-void timer_channel_output_config(uint32_t timer_periph,uint16_t channel, timer_oc_parameter_struct* ocpara);
+void timer_channel_output_config(uint32_t timer_periph, uint16_t channel, timer_oc_parameter_struct* ocpara);
 /* configure TIMER channel output compare mode */
-void timer_channel_output_mode_config(uint32_t timer_periph, uint16_t channel,uint16_t ocmode);
+void timer_channel_output_mode_config(uint32_t timer_periph, uint16_t channel, uint16_t ocmode);
 /* configure TIMER channel output pulse value */
 void timer_channel_output_pulse_value_config(uint32_t timer_periph, uint16_t channel, uint32_t pulse);
 /* configure TIMER channel output shadow function */
@@ -707,13 +707,13 @@ void timer_channel_output_shadow_config(uint32_t timer_periph, uint16_t channel,
 /* configure TIMER channel output fast function */
 void timer_channel_output_fast_config(uint32_t timer_periph, uint16_t channel, uint16_t ocfast);
 /* configure TIMER channel output clear function */
-void timer_channel_output_clear_config(uint32_t timer_periph,uint16_t channel,uint16_t occlear);
+void timer_channel_output_clear_config(uint32_t timer_periph, uint16_t channel, uint16_t occlear);
 /* configure TIMER channel output polarity */
 void timer_channel_output_polarity_config(uint32_t timer_periph, uint16_t channel, uint16_t ocpolarity);
 /* configure TIMER channel complementary output polarity */
 void timer_channel_complementary_output_polarity_config(uint32_t timer_periph, uint16_t channel, uint16_t ocnpolarity);
 /* configure TIMER channel enable state */
-void timer_channel_output_state_config(uint32_t timer_periph, uint16_t channel, uint32_t state);
+void timer_channel_output_state_config(uint32_t timer_periph, uint16_t channel, uint16_t state);
 /* configure TIMER channel complementary output enable state */
 void timer_channel_complementary_output_state_config(uint32_t timer_periph, uint16_t channel, uint16_t ocnstate);
 
@@ -721,9 +721,9 @@ void timer_channel_complementary_output_state_config(uint32_t timer_periph, uint
 /* initialize TIMER channel input parameter struct */
 void timer_channel_input_struct_para_init(timer_ic_parameter_struct* icpara);
 /* configure TIMER input capture parameter */
-void timer_input_capture_config(uint32_t timer_periph, uint16_t channel, timer_ic_parameter_struct* icpara);
+void timer_input_capture_config(uint32_t timer_periph,uint16_t channel,timer_ic_parameter_struct* icpara);
 /* configure TIMER channel input capture prescaler value */
-void timer_channel_input_capture_prescaler_config(uint32_t timer_periph, uint16_t channel, uint16_t prescaler);
+void timer_channel_input_capture_prescaler_config(uint32_t timer_periph, uint16_t channel, uint32_t prescaler);
 /* read TIMER channel capture compare register value */
 uint32_t timer_channel_capture_value_register_read(uint32_t timer_periph, uint16_t channel);
 /* configure TIMER input pwm capture function */
@@ -733,7 +733,7 @@ void timer_hall_mode_config(uint32_t timer_periph, uint8_t hallmode);
 
 /* TIMER master and slave */
 /* select TIMER input trigger source */
-void timer_input_trigger_source_select(uint32_t timer_periph, uint32_t intrigger);
+void timer_input_trigger_source_select(uint32_t timer_periph,uint32_t intrigger);
 /* select TIMER master mode output trigger source */
 void timer_master_output_trigger_source_select(uint32_t timer_periph, uint32_t outrigger);
 /* select TIMER slave mode */
@@ -741,7 +741,7 @@ void timer_slave_mode_select(uint32_t timer_periph,uint32_t slavemode);
 /* configure TIMER master slave mode */
 void timer_master_slave_mode_config(uint32_t timer_periph, uint8_t masterslave);
 /* configure TIMER external trigger input */
-void timer_external_trigger_config(uint32_t timer_periph, uint32_t extprescaler, uint32_t extpolarity, uint32_t extfilter);
+void timer_external_trigger_config(uint32_t timer_periph, uint32_t extprescaler, uint32_t expolarity, uint32_t extfilter);
 /* configure TIMER quadrature decoder mode */
 void timer_quadrature_decoder_mode_config(uint32_t timer_periph, uint32_t decomode, uint16_t ic0polarity, uint16_t ic1polarity);
 /* configure TIMER internal clock mode */
@@ -749,20 +749,20 @@ void timer_internal_clock_config(uint32_t timer_periph);
 /* configure TIMER the internal trigger as external clock input */
 void timer_internal_trigger_as_external_clock_config(uint32_t timer_periph, uint32_t intrigger);
 /* configure TIMER the external trigger as external clock input */
-void timer_external_trigger_as_external_clock_config(uint32_t timer_periph, uint32_t extrigger, uint16_t extpolarity,uint32_t extfilter);
+void timer_external_trigger_as_external_clock_config(uint32_t timer_periph, uint32_t extrigger, uint16_t expolarity, uint32_t extfilter);
 /* configure TIMER the external clock mode 0 */
-void timer_external_clock_mode0_config(uint32_t timer_periph, uint32_t extprescaler, uint32_t extpolarity, uint32_t extfilter);
+void timer_external_clock_mode0_config(uint32_t timer_periph, uint32_t extprescaler, uint32_t expolarity, uint32_t extfilter);
 /* configure TIMER the external clock mode 1 */
-void timer_external_clock_mode1_config(uint32_t timer_periph, uint32_t extprescaler, uint32_t extpolarity, uint32_t extfilter);
+void timer_external_clock_mode1_config(uint32_t timer_periph, uint32_t extprescaler, uint32_t expolarity, uint32_t extfilter);
 /* disable TIMER the external clock mode 1 */
 void timer_external_clock_mode1_disable(uint32_t timer_periph);
 /* configure TIMER channel remap function */
-void timer_channel_remap_config(uint32_t timer_periph,uint32_t remap);
+void timer_channel_remap_config(uint32_t timer_periph, uint16_t channel, uint32_t remap);
 
 /* TIMER configure */
 /* configure TIMER write CHxVAL register selection */
 void timer_write_chxval_register_config(uint32_t timer_periph, uint16_t ccsel);
 /* configure TIMER output value selection */
-void timer_output_value_selection_config(uint32_t timer_periph, uint16_t outsel);
+void timer_output_value_selection_config(uint32_t timer_periph, uint32_t outsel);
 
 #endif /* GD32F1X0_TIMER_H */

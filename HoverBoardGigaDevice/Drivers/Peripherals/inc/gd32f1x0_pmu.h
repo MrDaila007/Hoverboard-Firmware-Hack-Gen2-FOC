@@ -114,9 +114,9 @@ void pmu_to_deepsleepmode(uint32_t ldo,uint8_t deepsleepmodecmd);
 /* PMU work in standby mode */
 void pmu_to_standbymode(uint8_t standbymodecmd);
 /* enable PMU wakeup pin*/
-void pmu_wakeup_pin_enable(uint32_t wakeup_pin);
+void pmu_wakeup_pin_enable(uint32_t wakeup_pin );
 /* disable PMU wakeup pin */
-void pmu_wakeup_pin_disable(uint32_t wakeup_pin);
+void pmu_wakeup_pin_disable(uint32_t wakeup_pin );
 
 /* backup related functions */
 /* enable backup domain write */
@@ -126,8 +126,8 @@ void pmu_backup_write_disable(void);
 
 /* flag functions */
 /* clear flag bit */
-void pmu_flag_clear(uint32_t flag_clear);
+void pmu_flag_clear(uint32_t flag_reset);
 /* get flag state */
-FlagStatus pmu_flag_get(uint32_t flag);
+FlagStatus pmu_flag_get(uint32_t flag );
 
 #endif /* GD32F1X0_PMU_H */

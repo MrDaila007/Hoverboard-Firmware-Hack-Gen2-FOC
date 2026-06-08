@@ -361,37 +361,37 @@ typedef FlagStatus bit_status;
 /* reset GPIO port */
 void gpio_deinit(uint32_t gpio_periph);
 /* set GPIO mode */
-void gpio_mode_set(uint32_t gpio_periph, uint32_t mode, uint32_t pull_up_down, uint32_t pin);
+void gpio_mode_set(uint32_t gpio_periph,uint32_t mode,uint32_t pull_up_down,uint32_t pin);
 /* set GPIO output type and speed */
-void gpio_output_options_set(uint32_t gpio_periph, uint8_t otype, uint32_t speed, uint32_t pin);
+void gpio_output_options_set(uint32_t gpio_periph,uint8_t otype,uint32_t speed,uint32_t pin);
 
 /* set GPIO pin bit */
-void gpio_bit_set(uint32_t gpio_periph, uint32_t pin);
+void gpio_bit_set(uint32_t gpio_periph,uint32_t pin);
 /* reset GPIO pin bit */
-void gpio_bit_reset(uint32_t gpio_periph, uint32_t pin);
+void gpio_bit_reset(uint32_t gpio_periph,uint32_t pin);
 /* write data to the specified GPIO pin */
-void gpio_bit_write(uint32_t gpio_periph, uint32_t pin, bit_status bit_value);
+void gpio_bit_write(uint32_t gpio_periph,uint32_t pin,bit_status bit_value);
 /* write data to the specified GPIO port */
-void gpio_port_write(uint32_t gpio_periph, uint16_t data);
+void gpio_port_write(uint32_t gpio_periph,uint16_t data);
 
 /* get GPIO pin input status */
-FlagStatus gpio_input_bit_get(uint32_t gpio_periph, uint32_t pin);
+FlagStatus gpio_input_bit_get(uint32_t gpio_periph,uint32_t pin);
 /* get GPIO port input status */
 uint16_t gpio_input_port_get(uint32_t gpio_periph);
 /* get GPIO pin output status */
-FlagStatus gpio_output_bit_get(uint32_t gpio_periph, uint32_t pin);
+FlagStatus gpio_output_bit_get(uint32_t gpio_periph,uint32_t pin);
 /* get GPIO port output status */
 uint16_t gpio_output_port_get(uint32_t gpio_periph);
 
 /* set GPIO alternate function */
-void gpio_af_set(uint32_t gpio_periph,uint32_t alt_func_num, uint32_t pin);
+void gpio_af_set(uint32_t gpio_periph,uint32_t alt_func_num,uint32_t pin);
 /* lock GPIO pin bit */
-void gpio_pin_lock(uint32_t gpio_periph, uint32_t pin);
+void gpio_pin_lock(uint32_t gpio_periph,uint32_t pin);
 
 #ifdef GD32F170_190
 
 /* toggle GPIO pin status */
-void gpio_bit_toggle(uint32_t gpio_periph, uint32_t pin);
+void gpio_bit_toggle(uint32_t gpio_periph,uint32_t pin);
 /* toggle GPIO port status */
 void gpio_port_toggle(uint32_t gpio_periph);
 

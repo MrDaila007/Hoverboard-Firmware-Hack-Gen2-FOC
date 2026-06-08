@@ -88,6 +88,16 @@ int16_t offsetcount = 0;
 int16_t offsetdc = 2000;
 uint32_t speedCounter = 0;
 
+#ifdef SINUSOIDAL
+// Sinusoidal commutation state
+static uint16_t sin_rotor_angle    = 0;
+static uint16_t sin_angle_per_tick = 0;
+static uint16_t sin_last_angle     = 0;
+static uint32_t sin_hall_tick      = 0;
+static uint32_t sin_hall_period    = 1600;
+static uint8_t  sin_last_hall      = 0;
+#endif
+
 //----------------------------------------------------------------------------
 // Commutation table
 //----------------------------------------------------------------------------

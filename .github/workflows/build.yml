@@ -26,7 +26,8 @@ jobs:
           sudo apt-get update -q
           sudo apt-get install -y --no-install-recommends \
             gcc-arm-none-eabi \
-            binutils-arm-none-eabi
+            binutils-arm-none-eabi \
+            libnewlib-arm-none-eabi
 
       - name: Download CMSIS-5
         run: |

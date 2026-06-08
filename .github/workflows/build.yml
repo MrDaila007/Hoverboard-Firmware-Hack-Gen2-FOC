@@ -1,0 +1,48 @@
+name: Build Firmware
+
+on:
+  push:
+    branches:
+      - master
+      - 'feature/**'
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        role: [MASTER, SLAVE]
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ARM GCC toolchain
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y --no-install-recommends \
+            gcc-arm-none-eabi \
+            binutils-arm-none-eabi
+
+      - name: Download CMSIS-5
+        run: |
+          curl -sL \
+            https://github.com/ARM-software/CMSIS_5/archive/refs/tags/5.9.0.tar.gz \
+            | tar -xz -C $HOME
+          echo "CMSIS_PATH=$HOME/CMSIS_5-5.9.0" >> $GITHUB_ENV
+
+      - name: Build ${{ matrix.role }}
+        run: make ROLE=${{ matrix.role }}
+
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.role }}
+          path: |
+            build/${{ matrix.role }}/hoverboard-${{ matrix.role }}.elf
+            build/${{ matrix.role }}/hoverboard-${{ matrix.role }}.bin
+          retention-days: 30

@@ -189,6 +189,41 @@ void SetPWM(int16_t setPwm)
 	bldc_inputFilterPwm = CLAMP(setPwm, -1000, 1000);
 }
 
+#ifdef SINUSOIDAL
+//----------------------------------------------------------------------------
+// Called on every Hall state change — snaps angle to sector start and
+// updates the per-tick angle increment for interpolation.
+//----------------------------------------------------------------------------
+static void SinUpdateHallAngle(uint8_t current_hall)
+{
+    uint8_t current_pos = hall_to_pos[current_hall & 0x07];
+
+    if (current_pos == 0)
+    {
+        // Invalid Hall state (all-zero or all-one) — ignore
+        return;
+    }
+
+    // Update period estimate with exponential smoothing (weight: 75% old, 25% new)
+    // Guard against noise spikes (reject periods outside 50..32000 ticks)
+    if (sin_hall_tick > 50 && sin_hall_tick < 32000)
+    {
+        sin_hall_period = (sin_hall_period * 3 + sin_hall_tick) / 4;
+    }
+    sin_hall_tick = 0;
+
+    // Snap angle to this sector's start
+    sin_last_angle  = pos_to_angle[current_pos];
+    sin_rotor_angle = sin_last_angle;
+
+    // Precompute per-tick increment: 10923 angle-units = 60° per sector
+    // Division by sin_hall_period is safe: guarded to >= 1 by initialisation (1600)
+    sin_angle_per_tick = (uint16_t)(10923UL / sin_hall_period);
+
+    sin_last_hall = current_hall;
+}
+#endif
+
 //----------------------------------------------------------------------------
 // Calculation-Routine for BLDC => calculates with 16kHz
 //----------------------------------------------------------------------------

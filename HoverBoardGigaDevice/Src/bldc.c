@@ -291,7 +291,27 @@ void CalculateBLDC(void)
 	bldc_outputFilterPwm = filter_reg >> FILTER_SHIFT;
 	
   // Update PWM channels based on position y(ellow), b(lue), g(reen)
+#ifdef SINUSOIDAL
+  // Detect Hall transition → snap angle; otherwise interpolate
+  if (hall != sin_last_hall)
+  {
+    SinUpdateHallAngle(hall);
+  }
+  else
+  {
+    sin_hall_tick++;
+    sin_rotor_angle = sin_last_angle + (uint16_t)((uint32_t)sin_hall_tick * sin_angle_per_tick);
+  }
+
+  // Three-phase sinusoidal PWM, phases 120° apart
+  // 21845 = 65536/3 (120°),  43691 = 65536*2/3 (240°)
+  y = (int)((int32_t)bldc_outputFilterPwm * sine_lut[ sin_rotor_angle          >> 8] / 1000);
+  b = (int)((int32_t)bldc_outputFilterPwm * sine_lut[(uint8_t)((sin_rotor_angle + 21845U) >> 8)] / 1000);
+  g = (int)((int32_t)bldc_outputFilterPwm * sine_lut[(uint8_t)((sin_rotor_angle + 43691U) >> 8)] / 1000);
+#else
+  // Classic 6-step block commutation
   blockPWM(bldc_outputFilterPwm, pos, &y, &b, &g);
+#endif
 	
 	// Set PWM output (pwm_res/2 is the mean value, setvalue has to be between 10 and pwm_res-10)
 	timer_channel_output_pulse_value_config(TIMER_BLDC, TIMER_BLDC_CHANNEL_G, CLAMP(g + pwm_res / 2, 10, pwm_res-10));

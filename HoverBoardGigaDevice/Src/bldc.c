@@ -104,10 +104,20 @@ const uint8_t hall_to_pos[8] =
   0, // hall position [-] - No function (access from 1-6)
 };
 
-// Maps bldc pos (1..6) to rotor electrical angle in uint16 units (0=0°, 65536=360°)
-// Sector boundary angles: pos1=0°, pos2=60°, pos3=120°, pos4=180°, pos5=240°, pos6=300°
-// NOTE: if motor spins wrong direction on hardware, reverse order to {0, 0, 54613, 43691, 32768, 21845, 10923, 0}
-static const uint16_t pos_to_angle[8] = {0, 0, 10923, 21845, 32768, 43691, 54613, 0};
+// Maps bldc pos (1..6) to rotor electrical angle at the SECTOR START (uint16: 0=0°, 65536=360°).
+// On each Hall transition, snap to this angle then interpolate forward through the 60° sector.
+// Sector starts: pos1=0°, pos2=60°, pos3=120°, pos4=180°, pos5=240°, pos6=300°
+// NOTE: if motor spins wrong direction on hardware, reverse to {0, 0, 54613, 43691, 32768, 21845, 10923, 0}
+static const uint16_t pos_to_angle[8] = {
+    0,     // [0] invalid Hall state
+    0,     // [1] pos1 → 0°
+    10923, // [2] pos2 → 60°
+    21845, // [3] pos3 → 120°
+    32768, // [4] pos4 → 180°
+    43691, // [5] pos5 → 240°
+    54613, // [6] pos6 → 300°
+    0,     // [7] invalid Hall state
+};
 
 //----------------------------------------------------------------------------
 // Block PWM calculation based on position

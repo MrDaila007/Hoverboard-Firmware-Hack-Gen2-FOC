@@ -14,7 +14,7 @@ CMSIS_PATH ?= $(error CMSIS_PATH is not set. Example: make CMSIS_PATH=~/cmsis RO
 CFLAGS  = -mcpu=cortex-m3 -mthumb -mfloat-abi=soft
 CFLAGS += -Os -std=c99 -Wall -Wextra -Wno-unused-parameter
 CFLAGS += -ffunction-sections -fdata-sections
-CFLAGS += -D$(ROLE) -DARM_MATH_CM3 -DUSE_STDPERIPH_DRIVER
+CFLAGS += -D$(ROLE) -DGD32F130_150 -DARM_MATH_CM3 -DUSE_STDPERIPH_DRIVER
 
 # Include paths
 INCLUDES  = -IHoverBoardGigaDevice/Inc

@@ -1,1 +1,18 @@
 .worktrees/
+
+# Build artifacts (Makefile)
+HoverBoardGigaDevice/build/
+
+# PlatformIO cache and build output
+HoverBoardGigaDevice/.pio/
+
+# Host unit test binary
+HoverBoardGigaDevice/test/test_bldc_sinusoidal
+
+# Keil user-specific settings and build listings
+HoverBoardGigaDevice/*.uvguix.*
+HoverBoardGigaDevice/Listings/
+
+# IDE
+.vscode/
+.idea/

@@ -32,6 +32,7 @@
 #include "../Inc/setup.h"
 #include "../Inc/defines.h"
 #include "../Inc/config.h"
+#include "../Inc/bldc_sinusoidal.h"
 
 // Internal constants
 const int16_t pwm_res = 72000000 / 2 / PWM_FREQ; // = 2000
@@ -68,26 +69,14 @@ int16_t offsetcount = 0;
 int16_t offsetdc = 2000;
 uint32_t speedCounter = 0;
 
-//----------------------------------------------------------------------------
-// Commutation table
-//----------------------------------------------------------------------------
-const uint8_t hall_to_pos[8] =
-{
-	// annotation: for example SA=0 means hall sensor pulls SA down to Ground
-  0, // hall position [-] - No function (access from 1-6) 
-  3, // hall position [1] (SA=1, SB=0, SC=0) -> PWM-position 3
-  5, // hall position [2] (SA=0, SB=1, SC=0) -> PWM-position 5
-  4, // hall position [3] (SA=1, SB=1, SC=0) -> PWM-position 4
-  1, // hall position [4] (SA=0, SB=0, SC=1) -> PWM-position 1
-  2, // hall position [5] (SA=1, SB=0, SC=1) -> PWM-position 2
-  6, // hall position [6] (SA=0, SB=1, SC=1) -> PWM-position 6
-  0, // hall position [-] - No function (access from 1-6) 
-};
+#ifdef SINUSOIDAL
+static bldc_sin_state_t sin_state = { .hall_period = 1600 };
+#endif
 
 //----------------------------------------------------------------------------
 // Block PWM calculation based on position
 //----------------------------------------------------------------------------
-__INLINE void blockPWM(int pwm, int pwmPos, int *y, int *b, int *g)
+static __INLINE void blockPWM(int pwm, int pwmPos, int *y, int *b, int *g)
 {
   switch(pwmPos)
 	{
@@ -204,14 +193,28 @@ void CalculateBLDC(void)
   
 	// Determine current position based on hall sensors
   hall = hall_a * 1 + hall_b * 2 + hall_c * 4;
-  pos = hall_to_pos[hall];
+  pos = bldc_hall_to_pos[hall];
 	
 	// Calculate low-pass filter for pwm value
 	filter_reg = filter_reg - (filter_reg >> FILTER_SHIFT) + bldc_inputFilterPwm;
 	bldc_outputFilterPwm = filter_reg >> FILTER_SHIFT;
 	
   // Update PWM channels based on position y(ellow), b(lue), g(reen)
+#ifdef SINUSOIDAL
+  if (hall != sin_state.last_hall)
+  {
+    bldc_sin_on_hall_change(&sin_state, hall);
+  }
+  else
+  {
+    bldc_sin_advance(&sin_state);
+  }
+
+  bldc_sin_calc_pwm(bldc_outputFilterPwm, sin_state.rotor_angle, &y, &b, &g);
+#else
+  // Classic 6-step block commutation
   blockPWM(bldc_outputFilterPwm, pos, &y, &b, &g);
+#endif
 	
 	// Set PWM output (pwm_res/2 is the mean value, setvalue has to be between 10 and pwm_res-10)
 	timer_channel_output_pulse_value_config(TIMER_BLDC, TIMER_BLDC_CHANNEL_G, CLAMP(g + pwm_res / 2, 10, pwm_res-10));

@@ -1,1 +1,15 @@
 .worktrees/
+
+# Build artifacts (Makefile)
+HoverBoardGigaDevice/build/
+
+# PlatformIO cache and build output
+HoverBoardGigaDevice/.pio/
+
+# Keil user-specific settings and build listings
+HoverBoardGigaDevice/*.uvguix.*
+HoverBoardGigaDevice/Listings/
+
+# IDE
+.vscode/
+.idea/

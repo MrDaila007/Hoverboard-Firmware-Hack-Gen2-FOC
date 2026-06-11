@@ -35,7 +35,9 @@
 
 // ################################################################################
 
+#if !defined(SLAVE)
 #define MASTER										  	// Select if firmware is for master or slave board
+#endif
 //#define SLAVE 												// Select if firmware is for master or slave board
 
 // ################################################################################

@@ -132,7 +132,7 @@ static const uint16_t pos_to_angle[8] = {
 //----------------------------------------------------------------------------
 // Block PWM calculation based on position
 //----------------------------------------------------------------------------
-__INLINE void blockPWM(int pwm, int pwmPos, int *y, int *b, int *g)
+static __INLINE void blockPWM(int pwm, int pwmPos, int *y, int *b, int *g)
 {
   switch(pwmPos)
 	{

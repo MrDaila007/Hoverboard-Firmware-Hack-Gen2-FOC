@@ -42,9 +42,9 @@
 
 // ################################################################################
 
-// Uncomment to enable sinusoidal commutation (smoother, quieter).
-// Comment out to use classic 6-step block commutation.
-#define SINUSOIDAL
+// Sinusoidal commutation (smoother, quieter) is enabled via -DSINUSOIDAL in
+// platformio.ini. For Keil builds, uncomment the line below.
+//#define SINUSOIDAL
 
 // ################################################################################
 

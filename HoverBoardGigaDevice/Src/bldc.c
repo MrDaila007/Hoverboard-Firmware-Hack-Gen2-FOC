@@ -32,29 +32,10 @@
 #include "../Inc/setup.h"
 #include "../Inc/defines.h"
 #include "../Inc/config.h"
+#include "../Inc/bldc_sinusoidal.h"
 
 // Internal constants
 const int16_t pwm_res = 72000000 / 2 / PWM_FREQ; // = 2000
-
-// 256-entry sine LUT: sin(2*pi*i/256)*1000, index = angle_u16 >> 8
-static const int16_t sine_lut[256] = {
-     0,   25,   49,   74,   98,  122,  147,  171,  195,  219,  243,  267,  290,  314,  337,  361,
-   384,  406,  429,  451,  473,  494,  515,  535,  556,  576,  595,  615,  634,  652,  670,  688,
-   707,  724,  741,  757,  773,  788,  803,  818,  831,  844,  857,  869,  880,  891,  901,  911,
-   920,  929,  937,  944,  951,  957,  963,  968,  972,  976,  980,  982,  985,  987,  988,  989,
-   990,  989,  988,  987,  985,  982,  980,  976,  972,  968,  963,  957,  951,  944,  937,  929,
-   920,  911,  901,  891,  880,  869,  857,  844,  831,  818,  803,  788,  773,  757,  741,  724,
-   707,  688,  670,  652,  634,  615,  595,  576,  556,  535,  515,  494,  473,  451,  429,  406,
-   384,  361,  337,  314,  290,  267,  243,  219,  195,  171,  147,  122,   98,   74,   49,   25,
-     0,  -25,  -49,  -74,  -98, -122, -147, -171, -195, -219, -243, -267, -290, -314, -337, -361,
-  -384, -406, -429, -451, -473, -494, -515, -535, -556, -576, -595, -615, -634, -652, -670, -688,
-  -707, -724, -741, -757, -773, -788, -803, -818, -831, -844, -857, -869, -880, -891, -901, -911,
-  -920, -929, -937, -944, -951, -957, -963, -968, -972, -976, -980, -982, -985, -987, -988, -989,
-  -990, -989, -988, -987, -985, -982, -980, -976, -972, -968, -963, -957, -951, -944, -937, -929,
-  -920, -911, -901, -891, -880, -869, -857, -844, -831, -818, -803, -788, -773, -757, -741, -724,
-  -707, -688, -670, -652, -634, -615, -595, -576, -556, -535, -515, -494, -473, -451, -429, -406,
-  -384, -361, -337, -314, -290, -267, -243, -219, -195, -171, -147, -122,  -98,  -74,  -49,  -25
-};
 
 // Global variables for voltage and current
 float batteryVoltage = 40.0;
@@ -89,45 +70,8 @@ int16_t offsetdc = 2000;
 uint32_t speedCounter = 0;
 
 #ifdef SINUSOIDAL
-// Sinusoidal commutation state
-static uint16_t sin_rotor_angle    = 0;
-static uint16_t sin_angle_per_tick = 0;
-static uint16_t sin_last_angle     = 0;
-static uint32_t sin_hall_tick      = 0;
-static uint32_t sin_hall_period    = 1600;
-static uint8_t  sin_last_hall      = 0;
+static bldc_sin_state_t sin_state = { .hall_period = 1600 };
 #endif
-
-//----------------------------------------------------------------------------
-// Commutation table
-//----------------------------------------------------------------------------
-const uint8_t hall_to_pos[8] =
-{
-	// annotation: for example SA=0 means hall sensor pulls SA down to Ground
-  0, // hall position [-] - No function (access from 1-6) 
-  3, // hall position [1] (SA=1, SB=0, SC=0) -> PWM-position 3
-  5, // hall position [2] (SA=0, SB=1, SC=0) -> PWM-position 5
-  4, // hall position [3] (SA=1, SB=1, SC=0) -> PWM-position 4
-  1, // hall position [4] (SA=0, SB=0, SC=1) -> PWM-position 1
-  2, // hall position [5] (SA=1, SB=0, SC=1) -> PWM-position 2
-  6, // hall position [6] (SA=0, SB=1, SC=1) -> PWM-position 6
-  0, // hall position [-] - No function (access from 1-6)
-};
-
-// Maps bldc pos (1..6) to rotor electrical angle at the SECTOR START (uint16: 0=0°, 65536=360°).
-// On each Hall transition, snap to this angle then interpolate forward through the 60° sector.
-// Sector starts: pos1=0°, pos2=60°, pos3=120°, pos4=180°, pos5=240°, pos6=300°
-// NOTE: if motor spins wrong direction on hardware, reverse to {0, 0, 54613, 43691, 32768, 21845, 10923, 0}
-static const uint16_t pos_to_angle[8] = {
-    0,     // [0] invalid Hall state
-    0,     // [1] pos1 → 0°
-    10923, // [2] pos2 → 60°
-    21845, // [3] pos3 → 120°
-    32768, // [4] pos4 → 180°
-    43691, // [5] pos5 → 240°
-    54613, // [6] pos6 → 300°
-    0,     // [7] invalid Hall state
-};
 
 //----------------------------------------------------------------------------
 // Block PWM calculation based on position
@@ -189,41 +133,6 @@ void SetPWM(int16_t setPwm)
 	bldc_inputFilterPwm = CLAMP(setPwm, -1000, 1000);
 }
 
-#ifdef SINUSOIDAL
-//----------------------------------------------------------------------------
-// Called on every Hall state change — snaps angle to sector start and
-// updates the per-tick angle increment for interpolation.
-//----------------------------------------------------------------------------
-static void SinUpdateHallAngle(uint8_t current_hall)
-{
-    uint8_t current_pos = hall_to_pos[current_hall & 0x07];
-
-    if (current_pos == 0)
-    {
-        // Invalid Hall state (all-zero or all-one) — ignore
-        return;
-    }
-
-    // Update period estimate with exponential smoothing (weight: 75% old, 25% new)
-    // Guard against noise spikes (reject periods outside 50..32000 ticks)
-    if (sin_hall_tick > 50 && sin_hall_tick < 32000)
-    {
-        sin_hall_period = (sin_hall_period * 3 + sin_hall_tick) / 4;
-    }
-    sin_hall_tick = 0;
-
-    // Snap angle to this sector's start
-    sin_last_angle  = pos_to_angle[current_pos];
-    sin_rotor_angle = sin_last_angle;
-
-    // Precompute per-tick increment: 10923 angle-units = 60° per sector
-    // Division by sin_hall_period is safe: guarded to >= 1 by initialisation (1600)
-    sin_angle_per_tick = (uint16_t)(10923UL / sin_hall_period);
-
-    sin_last_hall = current_hall;
-}
-#endif
-
 //----------------------------------------------------------------------------
 // Calculation-Routine for BLDC => calculates with 16kHz
 //----------------------------------------------------------------------------
@@ -284,7 +193,7 @@ void CalculateBLDC(void)
   
 	// Determine current position based on hall sensors
   hall = hall_a * 1 + hall_b * 2 + hall_c * 4;
-  pos = hall_to_pos[hall];
+  pos = bldc_hall_to_pos[hall];
 	
 	// Calculate low-pass filter for pwm value
 	filter_reg = filter_reg - (filter_reg >> FILTER_SHIFT) + bldc_inputFilterPwm;
@@ -292,22 +201,16 @@ void CalculateBLDC(void)
 	
   // Update PWM channels based on position y(ellow), b(lue), g(reen)
 #ifdef SINUSOIDAL
-  // Detect Hall transition → snap angle; otherwise interpolate
-  if (hall != sin_last_hall)
+  if (hall != sin_state.last_hall)
   {
-    SinUpdateHallAngle(hall);
+    bldc_sin_on_hall_change(&sin_state, hall);
   }
   else
   {
-    sin_hall_tick++;
-    sin_rotor_angle = sin_last_angle + (uint16_t)((uint32_t)sin_hall_tick * sin_angle_per_tick);
+    bldc_sin_advance(&sin_state);
   }
 
-  // Three-phase sinusoidal PWM, phases 120° apart
-  // 21845 = 65536/3 (120°),  43691 = 65536*2/3 (240°)
-  y = (int)((int32_t)bldc_outputFilterPwm * sine_lut[ sin_rotor_angle          >> 8] / 1000);
-  b = (int)((int32_t)bldc_outputFilterPwm * sine_lut[(uint8_t)((sin_rotor_angle + 21845U) >> 8)] / 1000);
-  g = (int)((int32_t)bldc_outputFilterPwm * sine_lut[(uint8_t)((sin_rotor_angle + 43691U) >> 8)] / 1000);
+  bldc_sin_calc_pwm(bldc_outputFilterPwm, sin_state.rotor_angle, &y, &b, &g);
 #else
   // Classic 6-step block commutation
   blockPWM(bldc_outputFilterPwm, pos, &y, &b, &g);

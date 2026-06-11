@@ -10,8 +10,51 @@ on:
       - master
 
 jobs:
+  host-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run host unit tests
+        run: make -C HoverBoardGigaDevice/test
+
+  static-analysis:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: HoverBoardGigaDevice
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio/.cache
+            ~/.platformio/packages
+            ~/.platformio/platforms
+            ~/.platformio/penv
+          key: pio-${{ runner.os }}-${{ hashFiles('HoverBoardGigaDevice/platformio.ini') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      - name: Install PlatformIO
+        run: pip install --upgrade platformio
+
+      - name: Static analysis (cppcheck)
+        run: pio check -e GD32F130C8T6_MASTER --fail-on-defect=high
+
   build:
     runs-on: ubuntu-latest
+    needs: [host-test, static-analysis]
     strategy:
       matrix:
         include:
@@ -51,6 +94,9 @@ jobs:
 
       - name: Build ${{ matrix.role }}
         run: pio run -e ${{ matrix.env }}
+
+      - name: Check firmware size limits
+        run: python3 scripts/check_firmware_size.py .pio/build/${{ matrix.env }}/firmware.elf
 
       - name: Upload firmware artifacts
         uses: actions/upload-artifact@v4

@@ -5,9 +5,29 @@ on:
     branches:
       - master
       - 'feature/**'
+    paths:
+      - '.github/workflows/build.yml'
+      - 'HoverBoardGigaDevice/Src/**'
+      - 'HoverBoardGigaDevice/Inc/**'
+      - 'HoverBoardGigaDevice/RTE/**'
+      - 'HoverBoardGigaDevice/platformio.ini'
+      - 'HoverBoardGigaDevice/add_nanolib.py'
+      - 'HoverBoardGigaDevice/boards/**'
+      - 'HoverBoardGigaDevice/scripts/**'
+      - 'HoverBoardGigaDevice/test/**'
   pull_request:
     branches:
       - master
+    paths:
+      - '.github/workflows/build.yml'
+      - 'HoverBoardGigaDevice/Src/**'
+      - 'HoverBoardGigaDevice/Inc/**'
+      - 'HoverBoardGigaDevice/RTE/**'
+      - 'HoverBoardGigaDevice/platformio.ini'
+      - 'HoverBoardGigaDevice/add_nanolib.py'
+      - 'HoverBoardGigaDevice/boards/**'
+      - 'HoverBoardGigaDevice/scripts/**'
+      - 'HoverBoardGigaDevice/test/**'
 
 jobs:
   host-test:

@@ -79,7 +79,7 @@ Sinusoidal logic lives in `Src/bldc_sinusoidal.c` and is covered by host tests (
 
 #### CI
 
-GitHub Actions (`.github/workflows/build.yml`) on push/PR:
+GitHub Actions (`.github/workflows/build.yml`) on push/PR when firmware code changes (not on docs-only commits):
 
 - Host unit tests (`make -C HoverBoardGigaDevice/test`)
 - Static analysis (`pio check`, cppcheck)

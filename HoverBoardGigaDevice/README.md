@@ -124,6 +124,8 @@ Fails if flash > 65536 bytes or RAM > 8192 bytes.
 
 Workflow: [`.github/workflows/build.yml`](../.github/workflows/build.yml)
 
+Runs only when firmware-related paths change (`Src/`, `Inc/`, `test/`, `platformio.ini`, etc.). Commits that touch only `README.md`, schematics, or other docs **do not** trigger the workflow.
+
 | Job | What it runs |
 |-----|----------------|
 | `host-test` | `make -C HoverBoardGigaDevice/test` |

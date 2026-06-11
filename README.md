@@ -1,36 +1,109 @@
-#### Updates:
-````
-- Firmware is ready.
-- Sadly I can not support any issues. I'm not a student, less free time :)
-````
-
 ### Hoverboard-Firmware-Hack-Gen2
 
-Hoverboard Hack Firmware Generation 2 for the Hoverboard with the two Mainboards instead of the Sensorboards (See Pictures).
+Open-source firmware for generation-2 hoverboards with two mainboards (GD32F130C8 per board) instead of sensor boards.
 
-This repo contains open source firmware for generic Hoverboards with two mainboards. It allows you to control the hardware of the new version of hoverboards (like the Mainboard, Motors and Battery) with an arduino or some other steering device for projects like driving armchairs.
+Based on the structure of [Niklas Fauth's hoverboard firmware hack](https://github.com/NiklasFauth/hoverboard-firmware-hack/). The MCU and pinout differ from Gen1 (STM32F103), so this firmware was written from scratch.
 
-The structure of the firmware is based on the firmware hack of Niklas Fauth (https://github.com/NiklasFauth/hoverboard-firmware-hack/). Because of a different model of processor (GD32F130C8 instead of STM32F103) it was not possible to use the same firmware and it has to be written from scratch (Different hardware, different, pins, different registers :( )
-
-- This project requires knowledge of the initial project linked above.
-- At the current point I am not able to support any questions or issues - sorry!
+This fork adds **sinusoidal commutation**, a **PlatformIO** build, **CI**, and **host unit tests** for the motor control math.
 
 ---
 
 #### Hardware
+
 ![otter](https://github.com/flo199213/Hoverboard-Firmware-Hack-Gen2/blob/master/Hardware_Overview_small.png)
 
-The hardware has two main boards, which are different equipped. They are connected via USART. Additionally there are some LED PCB connected at X1 and X2 which signalize the battery state and the error state. There is an programming connector for ST-Link/V2 and they break out GND, USART/I2C, 5V on a second pinhead.
+Two mainboards communicate over USART. LED boards on X1/X2 show battery and error state. An SWD header (GND, SWDIO, SWCLK) is available for flashing.
 
-The reverse-engineered schematics of the mainboards can be found here:
-https://github.com/flo199213/Hoverboard-Firmware-Hack-Gen2/blob/master/Schematics/HoverBoard_CoolAndFun.pdf
+Schematics: [Schematics/HoverBoard_CoolAndFun.pdf](Schematics/HoverBoard_CoolAndFun.pdf)
 
+| Board | MCU | Role |
+|-------|-----|------|
+| Master | GD32F130C8 | Steering input, buzzer, battery LEDs, USART to slave |
+| Slave | GD32F130C8 | Second motor bridge, USART to master |
+
+Flash **different firmware** on master and slave (see build environments below).
+
+---
+
+#### Quick start (PlatformIO)
+
+**Requirements:** [PlatformIO](https://platformio.org/) (CLI or IDE extension)
+
+```bash
+cd HoverBoardGigaDevice
+pio run -e GD32F130C8T6_MASTER    # master board, sinusoidal PWM
+pio run -e GD32F130C8T6_SLAVE     # slave board, sinusoidal PWM
+```
+
+Firmware output:
+
+```
+.pio/build/GD32F130C8T6_MASTER/firmware.bin
+.pio/build/GD32F130C8T6_SLAVE/firmware.bin
+```
+
+Full build options, flashing, configuration, tests, and CI are documented in **[HoverBoardGigaDevice/README.md](HoverBoardGigaDevice/README.md)**.
 
 ---
 
 #### Flashing
-The firmware is built with Keil (free up to 32KByte). To build the firmware, open the Keil project file which is includes in repository. Right to the STM32, there is a debugging header with GND, 3V3, SWDIO and SWCLK. Connect GND, SWDIO and SWCLK to your SWD programmer, like the ST-Link found on many STM devboards.
 
-- If you never flashed your mainboard before, the controller is locked. To unlock the flash, use STM32 ST-LINK Utility or openOCD.
-- To flash the STM32, use the STM32 ST-LINK Utility as well, ST-Flash utility or Keil by itself.
-- Hold the powerbutton while flashing the firmware, as the controller releases the power latch and switches itself off during flashing
+1. Connect **GND**, **SWDIO**, **SWCLK** to an ST-Link (or compatible SWD programmer).
+2. If the chip was never flashed, unlock flash first (STM32 ST-LINK Utility or OpenOCD).
+3. **Hold the power button** while flashing — the MCU releases the power latch during reset.
+4. Flash master firmware to the master board and slave firmware to the slave board.
+
+With PlatformIO and ST-Link:
+
+```bash
+cd HoverBoardGigaDevice
+pio run -e GD32F130C8T6_MASTER -t upload    # requires upload_protocol in platformio.ini
+```
+
+Default `platformio.ini` uses J-Link; change `upload_protocol` to `stlink` if needed.
+
+**Keil (legacy):** open `HoverBoardGigaDevice/Hoverboard.uvprojx`. Set `MASTER` or `SLAVE` and optionally `SINUSOIDAL` in `Inc/config.h`, then build and flash from Keil.
+
+---
+
+#### Motor commutation
+
+| Mode | PlatformIO env suffix | Description |
+|------|----------------------|-------------|
+| Sinusoidal (default) | `GD32F130C8T6_MASTER` / `_SLAVE` | Smooth three-phase PWM, Hall-based angle tracking |
+| 6-step block | `GD32F130C8T6_MASTER_BLOCK` / `_SLAVE_BLOCK` | Classic trapezoidal commutation |
+
+Sinusoidal logic lives in `Src/bldc_sinusoidal.c` and is covered by host tests (`test/`).
+
+---
+
+#### CI
+
+GitHub Actions (`.github/workflows/build.yml`) on push/PR:
+
+- Host unit tests (`make -C HoverBoardGigaDevice/test`)
+- Static analysis (`pio check`, cppcheck)
+- Build MASTER + SLAVE firmware
+- Flash/RAM size check (64 KB / 8 KB limits for GD32F130C8)
+- Upload `firmware.bin` artifacts
+
+---
+
+#### Project layout
+
+```
+HoverBoardGigaDevice/
+  Src/           Application source
+  Inc/           Headers and config.h
+  platformio.ini Build environments
+  boards/        Board definition for PIO
+  test/          Host unit tests (sinusoidal math)
+  scripts/       CI helper scripts
+  RTE/           Keil SPL sources (legacy Keil build)
+```
+
+---
+
+#### License
+
+GPLv3 — see [LICENSE](LICENSE).
